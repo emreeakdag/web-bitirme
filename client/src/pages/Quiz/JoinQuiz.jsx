@@ -33,7 +33,7 @@ export default function JoinQuiz() {
   };
 
   return (
-    <div className="max-w-md mx-auto">
+    <div className="max-w-md mx-auto w-full px-4">
       <div className="card">
         <h1 className="text-2xl font-bold text-center mb-2">Yarismaya Katil</h1>
         <p className="text-sm text-gray-500 text-center mb-6">
@@ -53,7 +53,7 @@ export default function JoinQuiz() {
             <label className="label">PIN Kodu</label>
             <input
               type="text"
-              className="input-field text-center text-2xl tracking-widest font-bold uppercase"
+              className="input-field text-center text-xl sm:text-2xl tracking-widest font-bold uppercase"
               value={pin}
               onChange={(e) => setPin(e.target.value.slice(0, 6))}
               placeholder="ABC123"

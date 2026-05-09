@@ -86,6 +86,21 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'OK', message: 'Egitim Platformu API calisiyor.', timestamp: new Date().toISOString() });
 });
 
+app.get('/api/local-ip', (req, res) => {
+  const os = require('os');
+  const nets = os.networkInterfaces();
+  let localIp = 'localhost';
+  for (const name of Object.keys(nets)) {
+    for (const net of nets[name]) {
+      if (net.family === 'IPv4' && !net.internal) {
+        localIp = net.address;
+        // Break out of inner loop, might keep finding if multiple interfaces
+      }
+    }
+  }
+  res.json({ success: true, ip: localIp });
+});
+
 // 404 handler
 app.use((req, res) => {
   res.status(404).json({ success: false, message: 'Endpoint bulunamadi.' });

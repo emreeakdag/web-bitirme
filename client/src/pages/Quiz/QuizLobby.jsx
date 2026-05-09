@@ -11,15 +11,34 @@ export default function QuizLobby() {
   const [participants, setParticipants] = useState([]);
   const [loading, setLoading] = useState(true);
   const [started, setStarted] = useState(false);
+  const [baseUrl, setBaseUrl] = useState(window.location.origin);
+  const [toast, setToast] = useState({ msg: '', type: 'error' });
+  const [copySuccess, setCopySuccess] = useState(false);
+
+  const showToast = (msg, type = 'error') => {
+    setToast({ msg, type });
+    setTimeout(() => setToast({ msg: '', type: 'error' }), 3000);
+  };
 
   useEffect(() => {
+    const fetchIp = async () => {
+      try {
+        const res = await apiGet('/local-ip');
+        if (res?.success && res?.ip && window.location.hostname === 'localhost') {
+           const port = window.location.port ? `:${window.location.port}` : '';
+           setBaseUrl(`http://${res.ip}${port}`);
+        }
+      } catch (e) {}
+    };
+    fetchIp();
+
     const fetchQuiz = async () => {
       try {
         const data = await apiGet(`/quiz/info/${quizId}`);
         if (data.success) {
           if (data.quiz.question_count === 0) {
-            alert('Bu yarışmada hiç soru yok! Lütfen önce soru ekleyin.');
-            navigate(`/quiz/${quizId}/questions`);
+            showToast('Bu yarışmada hiç soru yok! Lütfen önce soru ekleyin.');
+            setTimeout(() => navigate(`/quiz/${quizId}/questions`), 1500);
             return;
           }
           setQuiz(data.quiz);
@@ -71,11 +90,16 @@ export default function QuizLobby() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#0a0a0a] to-[#141e15] text-white flex flex-col font-sans relative">
+      {toast.msg && (
+        <div className={`fixed top-24 left-1/2 -translate-x-1/2 z-[100] ${toast.type === 'success' ? 'bg-[#30A138]' : 'bg-red-600'} text-white px-6 py-3 rounded-full shadow-lg font-black uppercase tracking-widest text-sm animate-bounce-in whitespace-nowrap pointer-events-none border border-white/20`}>
+          {toast.msg}
+        </div>
+      )}
       {/* Background ambient glow */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-4xl h-96 bg-[#30A138] opacity-[0.03] rounded-full blur-[100px] pointer-events-none"></div>
 
       {/* Header */}
-      <header className="p-6 md:px-12 flex justify-between items-center bg-black/20 border-b border-white/5 relative z-10">
+      <header className="px-4 sm:px-6 py-4 md:px-12 flex justify-between items-center bg-black/20 border-b border-white/5 relative z-10">
         <Link to="/my-quizzes" className="text-gray-500 hover:text-white font-black text-xs uppercase tracking-widest flex items-center gap-2 transition-all group">
           <span className="transform group-hover:-translate-x-1 transition-transform">←</span> HAZIRLIĞA DÖN
         </Link>
@@ -86,7 +110,7 @@ export default function QuizLobby() {
         </div>
       </header>
 
-      <main className="flex-1 flex flex-col items-center p-6 md:p-12 w-full max-w-7xl mx-auto relative z-10">
+      <main className="flex-1 flex flex-col items-center px-4 sm:px-6 py-6 md:p-12 w-full max-w-7xl mx-auto relative z-10">
         
         {/* Quiz Title */}
         <h1 className="text-4xl md:text-6xl lg:text-7xl font-black italic uppercase tracking-tighter mb-10 text-center drop-shadow-2xl text-transparent bg-clip-text bg-gradient-to-r from-white to-gray-400">
@@ -94,7 +118,7 @@ export default function QuizLobby() {
         </h1>
 
         {/* Central Lobby Box (QR + PIN) */}
-        <div className="flex flex-col items-center bg-[#111] p-10 md:p-16 rounded-[3rem] border border-white/5 shadow-2xl mb-12 w-full max-w-3xl relative overflow-hidden group mx-auto">
+        <div className="flex flex-col items-center bg-[#111] p-6 sm:p-10 md:p-16 rounded-[2rem] sm:rounded-[3rem] border border-white/5 shadow-2xl mb-12 w-full max-w-3xl relative overflow-hidden group mx-auto">
            {/* Inner ambient glow */}
            <div className="absolute inset-0 bg-gradient-to-b from-[#30A138]/5 to-transparent pointer-events-none"></div>
            
@@ -103,8 +127,9 @@ export default function QuizLobby() {
               <span className="text-gray-400 font-black text-sm uppercase tracking-[0.4em] mb-6">HIZLI KATIL</span>
               <div className="bg-white p-6 rounded-[3rem] shadow-[0_0_80px_rgba(48,161,56,0.15)] transform transition-all duration-500 hover:scale-105 border-4 border-white/10">
                 <QRCodeSVG 
-                  value={`${window.location.origin}/join-quiz?pin=${quiz?.pin_code}`} 
-                  size={320} 
+                  value={`${baseUrl}/join-quiz?pin=${quiz?.pin_code}`} 
+                  size={250} 
+                  style={{ width: "100%", height: "auto", maxWidth: "320px" }}
                   level={"H"} 
                   includeMargin={false}
                 />
@@ -120,7 +145,20 @@ export default function QuizLobby() {
            {/* PIN Code Section - SMALLER */}
            <div className="flex flex-col items-center justify-center text-center relative z-10 w-full">
               <span className="text-gray-500 font-black text-[10px] uppercase tracking-[0.3em] mb-3">VEYA KOD İLE GİRİŞ YAP</span>
-              <div className="bg-black/60 px-12 py-5 rounded-[1.5rem] border border-white/10 w-full max-w-sm shadow-inner group-hover:border-[#30A138]/30 transition-colors cursor-pointer" title="Kodu Kopyala" onClick={() => { navigator.clipboard.writeText(quiz?.pin_code); alert('PIN kopyalandı!'); }}>
+              <div 
+                className={`bg-black/60 px-6 sm:px-12 py-5 rounded-[1.5rem] border ${copySuccess ? 'border-green-500' : 'border-white/10'} w-full max-w-sm shadow-inner group-hover:border-[#30A138]/30 transition-all cursor-pointer relative`} 
+                title="Kodu Kopyala" 
+                onClick={() => { 
+                  navigator.clipboard.writeText(quiz?.pin_code); 
+                  setCopySuccess(true);
+                  setTimeout(() => setCopySuccess(false), 2000);
+                }}
+              >
+                {copySuccess && (
+                  <div className="absolute -top-3 -right-3 bg-green-500 text-white w-8 h-8 rounded-full flex items-center justify-center shadow-lg animate-bounce-in z-20">
+                    ✓
+                  </div>
+                )}
                 <span className="text-5xl font-black text-white tracking-[0.2em] drop-shadow-md">
                   {quiz?.pin_code}
                 </span>

@@ -33,14 +33,14 @@ export default function JoinBoard() {
   };
 
   return (
-    <div className="max-w-md mx-auto">
-      <div className="card bg-[#111] border border-white/5 shadow-2xl p-10">
+    <div className="max-w-md mx-auto w-full px-4">
+      <div className="card bg-[#111] border border-white/5 shadow-2xl p-6 sm:p-10">
         <div className="flex justify-center mb-6">
           <div className="w-16 h-16 bg-[#30A138]/20 rounded-full flex items-center justify-center border border-[#30A138]/30">
             <span className="text-3xl">🔑</span>
           </div>
         </div>
-        <h1 className="text-3xl font-black text-white text-center mb-2 uppercase italic tracking-tighter">PANOYA KATIL</h1>
+        <h1 className="text-2xl sm:text-3xl font-black text-white text-center mb-2 uppercase italic tracking-tighter">PANOYA KATIL</h1>
         <p className="text-sm text-gray-500 text-center mb-8 font-medium">
           Arkadaşınızın veya yöneticinin verdiği kodu girin. <br />
           <span className="text-[#30A138] font-bold block mt-1">Kayıt olmanıza gerek yok!</span>
@@ -57,7 +57,7 @@ export default function JoinBoard() {
             <label className="label">Pano Kodu</label>
             <input
               type="text"
-              className="input-field text-center text-2xl tracking-widest font-bold uppercase"
+              className="input-field text-center text-xl sm:text-2xl tracking-widest font-bold uppercase"
               value={code}
               onChange={(e) => setCode(e.target.value.slice(0, 8))}
               placeholder="ABC12345"
@@ -79,7 +79,7 @@ export default function JoinBoard() {
             />
           </div>
 
-          <button type="submit" className="w-full bg-[#30A138] text-white py-4 rounded-xl text-lg font-black shadow-lg shadow-[#30A138]/20 active:scale-95 transition-all hover:bg-[#25822b] mt-4 uppercase tracking-widest" disabled={loading}>
+          <button type="submit" className="w-full bg-[#30A138] text-white py-3 sm:py-4 rounded-xl text-base sm:text-lg font-black shadow-lg shadow-[#30A138]/20 active:scale-95 transition-all hover:bg-[#25822b] mt-4 uppercase tracking-widest" disabled={loading}>
             {loading ? 'SİNYAL BEKLENİYOR...' : 'PANOYA GİRİŞ YAP'}
           </button>
         </form>

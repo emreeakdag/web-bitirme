@@ -1,10 +1,12 @@
 import { useAuth } from '../context/AuthContext';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { useState } from 'react';
 
 export default function Navbar() {
   const { user, isAuthenticated, isTeacher, logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const isActive = (path) => location.pathname === path;
   
@@ -38,38 +40,98 @@ export default function Navbar() {
             )}
           </div>
           
-          <div className="flex items-center gap-6">
-            <Link to="/join-board" className="text-xs font-bold text-gray-400 hover:text-white uppercase tracking-wider">
-              Panoya Katıl
-            </Link>
-            <Link to="/join-quiz" className="text-xs font-bold text-gray-400 hover:text-white uppercase tracking-wider">
-              Yarışmaya Katıl
-            </Link>
+          <div className="flex items-center gap-4 lg:gap-6">
+            <div className="hidden lg:flex items-center gap-6">
+              <Link to="/join-board" className="text-xs font-bold text-gray-400 hover:text-white uppercase tracking-wider">
+                Panoya Katıl
+              </Link>
+              <Link to="/join-quiz" className="text-xs font-bold text-gray-400 hover:text-white uppercase tracking-wider">
+                Yarışmaya Katıl
+              </Link>
 
-            {!isAuthenticated ? (
-              <div className="flex gap-4 items-center ml-4 border-l border-[#333333] pl-6">
-                <Link to="/login" className="text-xs font-bold text-gray-400 hover:text-white uppercase tracking-wider">
-                  Giriş
+              {!isAuthenticated ? (
+                <div className="flex gap-4 items-center ml-4 border-l border-[#333333] pl-6">
+                  <Link to="/login" className="text-xs font-bold text-gray-400 hover:text-white uppercase tracking-wider">
+                    Giriş
+                  </Link>
+                  <Link to="/register" className="btn-primary py-2.5 px-6">
+                    Kayıt Ol
+                  </Link>
+                </div>
+              ) : (
+                <div className="flex items-center gap-4 ml-4 border-l border-[#333333] pl-6">
+                  <span className="text-xs font-bold text-white uppercase tracking-wider">
+                    {user.full_name}
+                  </span>
+                  <button 
+                    onClick={() => { logout(); navigate('/'); }}
+                    className="text-xs font-bold text-gray-400 hover:text-white uppercase tracking-wider"
+                  >
+                    Çıkış
+                  </button>
+                </div>
+              )}
+            </div>
+
+            <button 
+              className="lg:hidden text-gray-400 hover:text-white p-2"
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d={isMobileMenuOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16M4 18h16"}/>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        {/* Mobile Menu */}
+        {isMobileMenuOpen && (
+          <div className="lg:hidden pb-6 space-y-4">
+            {isAuthenticated && (
+              <div className="flex flex-col gap-4 pb-4 border-b border-[#333333]">
+                <span className="text-xs font-bold text-[#30A138] uppercase tracking-wider">
+                  HOŞ GELDİN, {user.full_name}
+                </span>
+                <Link to="/my-quizzes" onClick={() => setIsMobileMenuOpen(false)} className="text-sm font-bold text-gray-300 hover:text-white transition-colors">
+                  Yarışmalarım
                 </Link>
-                <Link to="/register" className="btn-primary py-2.5 px-6">
-                  Kayıt Ol
+                <Link to="/create-quiz" onClick={() => setIsMobileMenuOpen(false)} className="text-sm font-bold text-gray-300 hover:text-white transition-colors">
+                  Quiz Oluştur
+                </Link>
+                <Link to="/my-boards" onClick={() => setIsMobileMenuOpen(false)} className="text-sm font-bold text-gray-300 hover:text-white transition-colors">
+                  Panolarım
                 </Link>
               </div>
-            ) : (
-              <div className="flex items-center gap-4 ml-4 border-l border-[#333333] pl-6">
-                <span className="text-xs font-bold text-white uppercase tracking-wider">
-                  {user.full_name}
-                </span>
+            )}
+            
+            <div className="flex flex-col gap-4">
+              <Link to="/join-board" onClick={() => setIsMobileMenuOpen(false)} className="text-sm font-bold text-gray-300 hover:text-white transition-colors">
+                Panoya Katıl
+              </Link>
+              <Link to="/join-quiz" onClick={() => setIsMobileMenuOpen(false)} className="text-sm font-bold text-gray-300 hover:text-white transition-colors">
+                Yarışmaya Katıl
+              </Link>
+              
+              {!isAuthenticated ? (
+                <div className="flex flex-col gap-3 pt-2">
+                  <Link to="/login" onClick={() => setIsMobileMenuOpen(false)} className="text-sm font-bold text-gray-300 hover:text-white transition-colors">
+                    Giriş
+                  </Link>
+                  <Link to="/register" onClick={() => setIsMobileMenuOpen(false)} className="btn-primary text-center py-3">
+                    Kayıt Ol
+                  </Link>
+                </div>
+              ) : (
                 <button 
-                  onClick={() => { logout(); navigate('/'); }}
-                  className="text-xs font-bold text-gray-400 hover:text-white uppercase tracking-wider"
+                  onClick={() => { logout(); setIsMobileMenuOpen(false); navigate('/'); }}
+                  className="text-sm font-bold text-red-400 hover:text-red-300 transition-colors text-left pt-2"
                 >
                   Çıkış
                 </button>
-              </div>
-            )}
+              )}
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </nav>
   );

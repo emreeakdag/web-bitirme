@@ -36,6 +36,7 @@ export default function BoardDetail() {
   const [boardAllowPosts, setBoardAllowPosts] = useState(true);
   const [boardBgImage, setBoardBgImage] = useState('default');
   const [showQr, setShowQr] = useState(false);
+  const [baseUrl, setBaseUrl] = useState(window.location.origin);
 
   const socketRef = useRef(null);
 
@@ -99,6 +100,17 @@ export default function BoardDetail() {
   };
 
   useEffect(() => {
+    const fetchIp = async () => {
+      try {
+        const res = await apiGet('/local-ip');
+        if (res?.success && res?.ip && window.location.hostname === 'localhost') {
+           const port = window.location.port ? `:${window.location.port}` : '';
+           setBaseUrl(`http://${res.ip}${port}`);
+        }
+      } catch (e) {}
+    };
+    fetchIp();
+
     fetchBoard();
 
     // Socket.io baglantisi
@@ -564,7 +576,7 @@ export default function BoardDetail() {
             <div className={`p-8 rounded-2xl border shadow-xl flex flex-col items-center text-center transition-colors ${currentBg.isLight ? 'bg-white border-emerald-100' : 'bg-white/10 border-white/20 backdrop-blur-md'}`}>
               <h3 className={`text-lg font-bold mb-6 ${currentBg.isLight ? 'text-emerald-950' : 'text-white'}`}>Panoya Katıl</h3>
               <div className="bg-white p-4 rounded-xl shadow-inner mb-6">
-                <QRCodeSVG value={`${window.location.origin}/join-board?code=${board?.code}`} size={180} level={"H"} />
+                <QRCodeSVG value={`${baseUrl}/join-board?code=${board?.code}`} size={180} level={"H"} />
               </div>
               <p className={`text-xs font-bold uppercase tracking-widest mb-2 ${currentBg.isLight ? 'text-emerald-600/70' : 'text-white/60'}`}>Veya Kod İle Katıl</p>
               <div className={`font-mono font-bold text-3xl tracking-[0.2em] px-6 py-3 rounded-xl border ${currentBg.isLight ? 'bg-emerald-50 text-emerald-900 border-emerald-200' : 'bg-black/30 text-white border-white/20'}`}>
@@ -589,7 +601,9 @@ export default function BoardDetail() {
                     <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs shadow-sm ${currentBg.isLight ? 'bg-emerald-200 text-emerald-800' : 'bg-white/20 text-white'}`}>
                       {user.substring(0, 2).toUpperCase()}
                     </div>
-                    <span className="font-semibold text-sm truncate">{user}</span>
+                    <span className="font-semibold text-sm truncate">
+                      {user} {user === board?.teacher_name && <span className="text-[10px] opacity-60 ml-1">(Kurucu)</span>}
+                    </span>
                   </div>
                 ))}
                 {activeUsers.length === 0 && (

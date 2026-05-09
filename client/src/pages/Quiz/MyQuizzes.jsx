@@ -33,7 +33,6 @@ export default function MyQuizzes() {
       const data = await apiDelete(`/quiz/${quizId}`);
       if (data.success) {
         setQuizzes(quizzes.filter(q => q.id !== quizId));
-        showNotify('success', 'Yarışma başarıyla silindi.');
       } else {
         showNotify('error', 'Silme işlemi başarısız oldu.');
       }
@@ -74,44 +73,14 @@ export default function MyQuizzes() {
         </div>
       )}
 
-      {/* Custom Delete Confirmation Modal */}
-      {showDeleteModal && (
-        <div className="fixed inset-0 z-[110] flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-black/80" onClick={() => setShowDeleteModal(null)}></div>
-          <div className="card relative max-w-sm w-full bg-[#1c1c1c] border border-white/10 shadow-2xl animate-bounce-in p-6">
-            <div className="flex flex-col items-center text-center">
-              <div className="w-16 h-16 bg-red-500/10 rounded-full flex items-center justify-center mx-auto mb-4 border border-red-500/20">
-                <span className="text-3xl">⚠️</span>
-              </div>
-              <h3 className="text-xl font-black text-white mb-2 uppercase italic tracking-tighter">EMİN MİSİN?</h3>
-              <p className="text-gray-400 mb-8 text-xs font-medium">
-                Tüm veriler kalıcı olarak silinecek. Bu işlem geri alınamaz.
-              </p>
-            </div>
-            <div className="flex justify-end gap-3 mt-2">
-              <button 
-                onClick={() => setShowDeleteModal(null)}
-                className="px-6 py-2.5 rounded-lg bg-white/5 text-white font-bold hover:bg-white/10 transition-all text-xs uppercase tracking-wider"
-              >
-                VAZGEÇ
-              </button>
-              <button 
-                onClick={handleDelete}
-                className="px-6 py-2.5 rounded-lg bg-red-600 text-white font-bold hover:bg-red-700 transition-all text-xs uppercase tracking-wider shadow-lg shadow-red-600/20"
-              >
-                EVET, SİL
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
 
-      <div className="flex justify-between items-center mb-10">
+
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 mb-10">
         <div>
-          <h1 className="text-4xl font-black text-white uppercase tracking-tighter italic">YARIŞMALARIM</h1>
+          <h1 className="text-3xl sm:text-4xl font-black text-white uppercase tracking-tighter italic">YARIŞMALARIM</h1>
           <div className="h-1 w-20 bg-[#30A138] mt-1 rounded-full"></div>
         </div>
-        <Link to="/create-quiz" className="btn-primary flex items-center gap-2">
+        <Link to="/create-quiz" className="btn-primary flex items-center justify-center gap-2 w-full sm:w-auto">
           <span>+</span> YENİ OLUŞTUR
         </Link>
       </div>
@@ -136,54 +105,71 @@ export default function MyQuizzes() {
                 <div className="flex flex-wrap gap-4">
                   <button 
                     onClick={() => copyToClipboard(quiz.pin_code)}
-                    className="flex items-center gap-3 bg-black/40 hover:bg-black/60 px-4 py-2 rounded-xl border border-white/5 transition-all group/pin"
+                    className="flex items-center gap-2 sm:gap-3 bg-black/40 hover:bg-black/60 px-3 sm:px-4 py-2 rounded-xl border border-white/5 transition-all group/pin flex-1 sm:flex-none justify-center"
                   >
                     <span className="text-[10px] font-black text-gray-500 uppercase tracking-widest">PIN:</span>
-                    <span className="text-lg font-black text-[#30A138] tracking-widest">{quiz.pin_code}</span>
-                    <span className="text-xs opacity-0 group-hover/pin:opacity-100 transition-opacity">📋</span>
+                    <span className="text-base sm:text-lg font-black text-[#30A138] tracking-widest">{quiz.pin_code}</span>
                   </button>
-                  <div className="flex items-center gap-3 bg-black/40 px-4 py-2 rounded-xl border border-white/5">
+                  <div className="flex items-center gap-2 sm:gap-3 bg-black/40 px-3 sm:px-4 py-2 rounded-xl border border-white/5 flex-1 sm:flex-none justify-center">
                     <span className="text-[10px] font-black text-gray-500 uppercase tracking-widest">KATILIMCI:</span>
-                    <span className="text-lg font-black text-white">{quiz.participant_count || 0}</span>
+                    <span className="text-base sm:text-lg font-black text-white">{quiz.participant_count || 0}</span>
                   </div>
                 </div>
               </div>
 
-              <div className="flex items-center gap-3 w-full md:w-auto">
-                <Link to={`/quiz/${quiz.id}/questions`} className="flex-1 md:flex-none py-3 px-6 rounded-xl bg-white/5 text-white font-black text-xs uppercase tracking-widest hover:bg-white/10 transition-all border border-white/5 text-center">
-                  SORULAR
-                </Link>
-                
-                {quiz.status === 'completed' ? (
-                  <Link to={`/quiz-results/${quiz.id}`} className="flex-1 md:flex-none py-3 px-8 rounded-xl bg-[#30A138] text-white font-black text-xs uppercase tracking-widest hover:bg-[#25822b] transition-all shadow-lg shadow-[#30A138]/20 text-center">
-                    SONUÇLAR
-                  </Link>
-                ) : quiz.status === 'active' ? (
-                  <Link to={`/play-quiz/${quiz.id}?host=true`} className="flex-1 md:flex-none py-3 px-8 rounded-xl bg-blue-600 text-white font-black text-xs uppercase tracking-widest hover:bg-blue-700 transition-all shadow-lg shadow-blue-600/20 text-center">
-                    DEVAM ET
-                  </Link>
-                ) : quiz.question_count > 0 ? (
-                  <Link to={`/quiz/${quiz.id}/lobby`} className="flex-1 md:flex-none py-3 px-8 rounded-xl bg-[#30A138] text-white font-black text-xs uppercase tracking-widest hover:bg-[#25822b] transition-all shadow-lg shadow-[#30A138]/20 text-center">
-                    BAŞLAT
+              <div className="flex flex-col items-end gap-4 w-full md:w-auto">
+                <div className="flex items-center gap-3 w-full md:w-auto">
+                  {quiz.status === 'completed' ? (
+                  <Link to={`/quiz/${quiz.id}/stats`} className="flex-1 md:flex-none py-3 px-6 rounded-xl bg-blue-500/10 text-blue-400 font-black text-xs uppercase tracking-widest hover:bg-blue-500/20 transition-all border border-blue-500/20 text-center">
+                    İSTATİSTİKLER
                   </Link>
                 ) : (
-                  <button 
-                    onClick={() => showNotify('error', 'Yarışmayı başlatmak için en az 1 soru eklemelisiniz!')}
-                    className="flex-1 md:flex-none py-3 px-8 rounded-xl bg-[#30A138]/50 text-white/50 font-black text-xs uppercase tracking-widest cursor-not-allowed text-center border border-[#30A138]/20"
-                  >
-                    BAŞLAT
-                  </button>
+                  <Link to={`/quiz/${quiz.id}/questions`} className="flex-1 md:flex-none py-3 px-6 rounded-xl bg-white/5 text-white font-black text-xs uppercase tracking-widest hover:bg-white/10 transition-all border border-white/5 text-center">
+                    SORULAR
+                  </Link>
                 )}
+                  
+                  {quiz.status === 'completed' ? (
+                    <Link to={`/quiz-results/${quiz.id}`} className="flex-1 md:flex-none py-3 px-8 rounded-xl bg-[#30A138] text-white font-black text-xs uppercase tracking-widest hover:bg-[#25822b] transition-all shadow-lg shadow-[#30A138]/20 text-center">
+                      SONUÇLAR
+                    </Link>
+                  ) : quiz.status === 'active' ? (
+                    <Link to={`/play-quiz/${quiz.id}?host=true`} className="flex-1 md:flex-none py-3 px-8 rounded-xl bg-blue-600 text-white font-black text-xs uppercase tracking-widest hover:bg-blue-700 transition-all shadow-lg shadow-blue-600/20 text-center">
+                      DEVAM ET
+                    </Link>
+                  ) : quiz.question_count > 0 ? (
+                    <Link to={`/quiz/${quiz.id}/lobby`} className="flex-1 md:flex-none py-3 px-8 rounded-xl bg-[#30A138] text-white font-black text-xs uppercase tracking-widest hover:bg-[#25822b] transition-all shadow-lg shadow-[#30A138]/20 text-center">
+                      BAŞLAT
+                    </Link>
+                  ) : (
+                    <button 
+                      onClick={() => showNotify('error', 'Yarışmayı başlatmak için en az 1 soru eklemelisiniz!')}
+                      className="flex-1 md:flex-none py-3 px-8 rounded-xl bg-[#30A138]/50 text-white/50 font-black text-xs uppercase tracking-widest cursor-not-allowed text-center border border-[#30A138]/20"
+                    >
+                      BAŞLAT
+                    </button>
+                  )}
+                </div>
 
-                <button 
-                  onClick={() => setShowDeleteModal(quiz.id)}
-                  className="p-3.5 rounded-xl bg-red-600/10 text-red-500 hover:bg-red-600 hover:text-white transition-all border border-red-600/20 group/del"
-                  title="Quizi Sil"
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 group-hover/del:scale-110 transition-transform" viewBox="0 0 20 20" fill="currentColor">
-                    <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
-                  </svg>
-                </button>
+                <div className="flex justify-end w-full">
+                  {showDeleteModal === quiz.id ? (
+                    <div className="flex items-center gap-2 bg-red-600/20 border border-red-600/40 p-2 rounded-xl animate-bounce-in">
+                      <span className="text-[10px] text-red-500 font-black px-1 uppercase tracking-tighter">EMİN MİSİN?</span>
+                      <button onClick={handleDelete} className="bg-red-600 text-white px-3 py-2 rounded-lg font-black text-[10px] uppercase hover:bg-red-700 transition-colors">SİL</button>
+                      <button onClick={() => setShowDeleteModal(null)} className="bg-white/10 text-white px-3 py-2 rounded-lg font-black text-[10px] uppercase hover:bg-white/20 transition-colors">VAZGEÇ</button>
+                    </div>
+                  ) : (
+                    <button 
+                      onClick={() => setShowDeleteModal(quiz.id)}
+                      className="p-2.5 rounded-xl bg-red-600/5 text-red-500/40 hover:bg-red-600 hover:text-white transition-all border border-transparent hover:border-red-600/20 group/del"
+                      title="Quizi Sil"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                      </svg>
+                    </button>
+                  )}
+                </div>
               </div>
             </div>
           </div>

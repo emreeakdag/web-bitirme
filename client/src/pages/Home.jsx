@@ -102,37 +102,39 @@ export default function Home() {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
       {/* Hero Section */}
-      <div className="flex flex-col md:flex-row items-center gap-16 mb-32">
-        <div className="flex-1 space-y-8">
+      <div className="flex items-center gap-6 md:gap-16 mb-20 md:mb-32">
+        <div className="flex-1 space-y-4 md:space-y-8 min-w-[55%]">
           <div>
-            <p className="text-xs font-bold text-[#30A138] uppercase tracking-widest mb-4">Eğitimi Yeniden Tanımlıyoruz</p>
-            <h1 className="text-5xl lg:text-6xl font-extrabold text-white leading-[1.1] tracking-tight">
+            <p className="text-[10px] md:text-xs font-bold text-[#30A138] uppercase tracking-widest mb-2 md:mb-4">Eğitimi Yeniden Tanımlıyoruz</p>
+            <h1 className="text-3xl sm:text-5xl lg:text-6xl font-extrabold text-white leading-[1.1] tracking-tight">
               Vibe Learn ile<br />
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#30A138] to-teal-400">
                 İnteraktif Öğrenme.
               </span>
             </h1>
           </div>
-          <p className="text-sm text-gray-400 max-w-md leading-relaxed">
+          <p className="text-xs sm:text-sm text-gray-400 max-w-md leading-relaxed hidden sm:block">
             Öğretmenler ve öğrenciler için etkileşimli, anlık geri bildirimli ve kayıt gerektirmeyen modern eğitim platformu. Sınıfınızı dijitalleştirin.
           </p>
-          <div className="flex flex-wrap gap-4 pt-4">
-            <Link to="/join-quiz" className="btn-primary">
+          <div className="flex flex-col sm:flex-row gap-3 pt-2 md:pt-4 w-full pr-4 sm:pr-0">
+            <Link to="/join-quiz" className="btn-primary text-[10px] md:text-xs py-2 md:py-3 px-3 sm:px-6 w-full sm:w-auto text-center">
               YARIŞMAYA KATIL
             </Link>
-            <Link to="/join-board" className="btn-secondary">
+            <Link to="/join-board" className="btn-secondary text-[10px] md:text-xs py-2 md:py-3 px-3 sm:px-6 w-full sm:w-auto text-center">
               PANOYA KATIL
             </Link>
           </div>
         </div>
-        <div className="flex-1 w-full max-w-lg aspect-square relative rounded-3xl overflow-hidden shadow-2xl border border-white/50 bg-gradient-to-tr from-emerald-500 to-teal-400 flex items-center justify-center">
+        <div className="flex-1 w-full max-w-[140px] sm:max-w-md md:max-w-lg aspect-square relative rounded-2xl md:rounded-3xl overflow-hidden shadow-2xl border border-white/50 bg-gradient-to-tr from-emerald-500 to-teal-400 flex items-center justify-center shrink-0">
           {subjects.map((subject, idx) => (
             <div
               key={subject.id}
               className={`absolute inset-0 flex items-center justify-center transition-all duration-1000 transform ${idx === currentSubjectIndex ? 'opacity-100 scale-100 z-10' : 'opacity-0 scale-95 z-0'
                 }`}
             >
-              {subject.svg}
+              <div className="scale-[0.4] sm:scale-75 md:scale-100 flex items-center justify-center w-full h-full">
+                {subject.svg}
+              </div>
             </div>
           ))}
         </div>

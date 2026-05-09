@@ -25,7 +25,7 @@
     @apply bg-[#e11d48] hover:bg-[#be123c] text-white font-bold py-3 px-6 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 uppercase tracking-widest text-xs border border-transparent;
   }
   .card {
-    @apply bg-[#232323] rounded-xl shadow-lg border border-[#333333] p-8 transition-all duration-300 hover:shadow-xl hover:-translate-y-1 text-white;
+    @apply bg-[#232323] rounded-xl shadow-lg border border-[#333333] p-4 sm:p-6 md:p-8 transition-all duration-300 hover:shadow-xl hover:-translate-y-1 text-white;
   }
   .input-field {
     @apply w-full px-4 py-3 border border-[#333333] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#30A138] focus:border-[#30A138] bg-[#1c1c1c] text-white text-sm shadow-sm transition-all;
@@ -119,6 +119,12 @@
     100% { transform: translateY(0); opacity: 1; }
   }
   .animate-rank-up { animation: rank-up 0.5s ease-out; }
+
+  @keyframes slide-down {
+    0% { transform: translateY(-100%); opacity: 0; }
+    100% { transform: translateY(0); opacity: 1; }
+  }
+  .animate-slide-down { animation: slide-down 0.4s cubic-bezier(0.165, 0.84, 0.44, 1); }
 
   .text-shadow-premium {
     text-shadow: 0 2px 4px rgba(0,0,0,0.3);

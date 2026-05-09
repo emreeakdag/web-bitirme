@@ -11,6 +11,7 @@ import MyQuizzes from './pages/Quiz/MyQuizzes';
 import CreateQuiz from './pages/Quiz/CreateQuiz';
 import AddQuestions from './pages/Quiz/AddQuestions';
 import QuizLobby from './pages/Quiz/QuizLobby';
+import QuizStats from './pages/Quiz/QuizStats';
 import MyBoards from './pages/Board/MyBoards';
 import JoinedBoards from './pages/Board/JoinedBoards';
 import CreateBoard from './pages/Board/CreateBoard';
@@ -38,6 +39,7 @@ export default function App() {
           <Route path="create-quiz" element={<ProtectedRoute><CreateQuiz /></ProtectedRoute>} />
           <Route path="quiz/:quizId/questions" element={<ProtectedRoute><AddQuestions /></ProtectedRoute>} />
           <Route path="quiz/:quizId/lobby" element={<ProtectedRoute><QuizLobby /></ProtectedRoute>} />
+          <Route path="quiz/:quizId/stats" element={<ProtectedRoute><QuizStats /></ProtectedRoute>} />
           <Route path="my-boards" element={<ProtectedRoute><MyBoards /></ProtectedRoute>} />
           <Route path="create-board" element={<ProtectedRoute><CreateBoard /></ProtectedRoute>} />
           <Route path="joined-boards" element={<ProtectedRoute><JoinedBoards /></ProtectedRoute>} />

@@ -38,91 +38,91 @@ export default function QuizResults() {
       <div className="max-w-4xl mx-auto">
         <div className="flex flex-col items-center mb-16">
            <h1 className="text-5xl md:text-7xl font-black italic uppercase tracking-tighter mb-4 text-center">
-            FİNAL <span className="text-[#30A138]">SIRALAMA</span>
+            YARIŞMA <span className="text-[#30A138]">SONUÇLARI</span>
            </h1>
            <div className="h-2 w-32 bg-gradient-to-r from-transparent via-[#30A138] to-transparent rounded-full"></div>
         </div>
         
         {/* Top 3 Podium */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-end mb-16 px-4">
+        <div className="flex flex-row justify-center items-end gap-2 md:gap-8 mb-16 px-2 md:px-4">
             {/* 2nd Place */}
-            <div className="order-2 md:order-1">
-              {leaderboard[1] && (
-                <div className="flex flex-col items-center animate-rank-up" style={{ animationDelay: '0.2s' }}>
-                  <div className="text-center mb-6">
-                    <p className="text-xl font-black truncate max-w-[150px]">{leaderboard[1].nickname}</p>
-                    <p className="text-gray-400 font-bold">{leaderboard[1].score} PUAN</p>
-                  </div>
-                  <div className="w-full h-48 bg-gradient-to-t from-gray-900 to-gray-700 rounded-t-[2.5rem] flex items-center justify-center text-7xl font-black text-white/5 relative border-x border-t border-white/10 shadow-2xl">
-                    2
-                    <div className="absolute -top-8 text-5xl">🥈</div>
-                  </div>
+            {leaderboard[1] && (
+              <div className="flex-1 max-w-[120px] md:max-w-none flex flex-col items-center animate-rank-up" style={{ animationDelay: '0.2s' }}>
+                <div className="text-center mb-2 md:mb-6 w-full truncate px-1">
+                  <p className="text-sm md:text-xl font-black text-gray-300 truncate">{leaderboard[1].nickname}</p>
+                  <p className="text-[10px] md:text-sm text-gray-500 font-bold">{leaderboard[1].score} PUAN</p>
                 </div>
-              )}
-            </div>
+                <div className="w-full h-32 md:h-48 bg-gradient-to-b from-gray-400/20 to-[#111] rounded-t-[1.5rem] md:rounded-t-[2.5rem] flex items-center justify-center text-4xl md:text-7xl font-black text-gray-400/10 relative shadow-[0_-10px_40px_rgba(156,163,175,0.1)] border-x-2 border-t-2 border-gray-400/30 overflow-hidden">
+                  <div className="absolute inset-0 bg-gradient-to-tr from-white/0 via-white/5 to-white/0 pointer-events-none"></div>
+                  2
+                </div>
+              </div>
+            )}
 
             {/* 1st Place */}
-            <div className="order-1 md:order-2">
-              {leaderboard[0] && (
-                <div className="flex flex-col items-center animate-rank-up">
-                  <div className="text-center mb-8">
-                    <p className="text-3xl font-black text-yellow-500 truncate max-w-[200px] mb-1">👑 {leaderboard[0].nickname}</p>
-                    <p className="text-yellow-400/80 font-black text-xl">{leaderboard[0].score} PUAN</p>
-                  </div>
-                  <div className="w-full h-72 bg-gradient-to-t from-yellow-950 via-yellow-600 to-yellow-400 rounded-t-[3rem] flex items-center justify-center text-9xl font-black text-white/10 relative shadow-[0_0_80px_rgba(234,179,8,0.2)] border-x border-t border-yellow-300/30">
-                    1
-                    <div className="absolute -top-12 text-7xl animate-bounce">🏆</div>
-                  </div>
+            {leaderboard[0] && (
+              <div className="flex-1 max-w-[140px] md:max-w-none flex flex-col items-center animate-rank-up z-10">
+                <div className="text-center mb-3 md:mb-8 w-full truncate px-1">
+                  <p className="text-base md:text-3xl font-black text-yellow-500 truncate mb-1">{leaderboard[0].nickname}</p>
+                  <p className="text-xs md:text-xl text-yellow-600 font-black">{leaderboard[0].score} PUAN</p>
                 </div>
-              )}
-            </div>
+                <div className="w-full h-48 md:h-72 bg-gradient-to-b from-yellow-400/20 to-[#111] rounded-t-[1.5rem] md:rounded-t-[3rem] flex items-center justify-center text-6xl md:text-9xl font-black text-yellow-400/10 relative shadow-[0_-10px_50px_rgba(250,204,21,0.15)] border-x-2 border-t-2 border-yellow-400/40 overflow-hidden">
+                  <div className="absolute inset-0 bg-gradient-to-tr from-white/0 via-white/10 to-white/0 pointer-events-none"></div>
+                  1
+                </div>
+              </div>
+            )}
 
             {/* 3rd Place */}
-            <div className="order-3 md:order-3">
-              {leaderboard[2] && (
-                <div className="flex flex-col items-center animate-rank-up" style={{ animationDelay: '0.4s' }}>
-                  <div className="text-center mb-6">
-                    <p className="text-xl font-black truncate max-w-[150px]">{leaderboard[2].nickname}</p>
-                    <p className="text-gray-400 font-bold">{leaderboard[2].score} PUAN</p>
-                  </div>
-                  <div className="w-full h-36 bg-gradient-to-t from-orange-950 to-orange-800 rounded-t-[2.5rem] flex items-center justify-center text-6xl font-black text-white/5 relative border-x border-t border-orange-500/20 shadow-2xl">
-                    3
-                    <div className="absolute -top-8 text-5xl">🥉</div>
-                  </div>
+            {leaderboard[2] && (
+              <div className="flex-1 max-w-[120px] md:max-w-none flex flex-col items-center animate-rank-up" style={{ animationDelay: '0.4s' }}>
+                <div className="text-center mb-2 md:mb-6 w-full truncate px-1">
+                  <p className="text-sm md:text-xl font-black text-orange-400 truncate">{leaderboard[2].nickname}</p>
+                  <p className="text-[10px] md:text-sm text-orange-700 font-bold">{leaderboard[2].score} PUAN</p>
                 </div>
-              )}
-            </div>
+                <div className="w-full h-24 md:h-36 bg-gradient-to-b from-orange-500/20 to-[#111] rounded-t-[1.5rem] md:rounded-t-[2.5rem] flex items-center justify-center text-3xl md:text-6xl font-black text-orange-500/10 relative shadow-[0_-10px_30px_rgba(249,115,22,0.1)] border-x-2 border-t-2 border-orange-500/30 overflow-hidden">
+                  <div className="absolute inset-0 bg-gradient-to-tr from-white/0 via-white/5 to-white/0 pointer-events-none"></div>
+                  3
+                </div>
+              </div>
+            )}
         </div>
 
         {/* Other Players */}
-        <div className="bg-[#111] rounded-[3rem] p-8 md:p-12 border border-white/5 shadow-2xl mb-12">
-          <div className="flex justify-between items-center mb-10 border-b border-white/5 pb-6">
-            <h3 className="text-gray-500 font-black uppercase text-xs tracking-[0.3em]">Diğer Yarışmacılar</h3>
-            <span className="bg-[#30A138]/10 text-[#30A138] px-4 py-1 rounded-full text-xs font-black">TOP 10</span>
+        <div className="bg-[#111] rounded-[3rem] p-8 md:p-12 border border-white/5 shadow-2xl mb-12 relative overflow-hidden">
+          <div className="flex justify-between items-center mb-10 border-b border-white/5 pb-6 relative z-10">
+            <h3 className="text-gray-400 font-black uppercase text-sm tracking-[0.3em]">Genel Sıralama</h3>
+            <span className="bg-[#30A138]/10 text-[#30A138] px-4 py-1 rounded-full text-xs font-black border border-[#30A138]/20">TÜM LİSTE</span>
           </div>
           
-          <div className="space-y-4">
-            {leaderboard.slice(3, 10).map((player, idx) => (
-              <div key={idx} className="group flex justify-between items-center p-6 rounded-3xl bg-black/40 hover:bg-white/5 transition-all duration-300 border border-transparent hover:border-white/5">
-                <div className="flex items-center gap-8">
-                  <span className="text-gray-700 font-black text-2xl w-8 group-hover:text-[#30A138] transition-colors">{idx + 4}</span>
-                  <div>
-                    <p className="font-black text-white text-xl tracking-tight">{player.nickname}</p>
-                    <p className="text-xs font-bold text-gray-500 uppercase tracking-widest mt-1">
-                      {player.correct_answers} DOĞRU / {player.total_answers} TOPLAM
-                    </p>
+          <div className="space-y-4 relative z-10">
+            {leaderboard.map((player, idx) => {
+              const isTop3 = idx < 3;
+              const rankColor = idx === 0 ? 'text-yellow-500' : idx === 1 ? 'text-gray-400' : idx === 2 ? 'text-orange-400' : 'text-gray-600';
+              const bgClass = isTop3 ? 'bg-white/5 border-white/10' : 'bg-black/40 border-transparent';
+              
+              return (
+                <div key={idx} className={`flex justify-between items-center px-4 py-2 sm:py-3 rounded-lg ${bgClass} hover:bg-white/10 transition-colors border hover:border-white/10`}>
+                  <div className="flex items-center gap-3 sm:gap-4">
+                    <span className={`${rankColor} font-black text-sm sm:text-lg w-5 text-center`}>{idx + 1}.</span>
+                    <div>
+                      <p className={`font-bold text-sm sm:text-base tracking-tight leading-tight ${idx === 0 ? 'text-yellow-500' : 'text-white'}`}>{player.nickname}</p>
+                      <p className="text-[9px] sm:text-[10px] font-medium text-gray-500 uppercase tracking-wider mt-0.5">
+                        {player.correct_answers} D / {player.total_answers} T
+                      </p>
+                    </div>
+                  </div>
+                  <div className="text-right flex items-center gap-1.5">
+                    <span className={`font-black text-base sm:text-xl tracking-tighter ${isTop3 ? 'text-white' : 'text-[#30A138]'}`}>{player.score}</span>
+                    <span className="text-[8px] sm:text-[9px] font-bold text-gray-600 uppercase tracking-widest mt-1">pts</span>
                   </div>
                 </div>
-                <div className="text-right">
-                  <span className="font-black text-[#30A138] text-2xl tracking-tighter italic">{player.score}</span>
-                  <p className="text-[10px] font-black text-gray-600 uppercase tracking-widest">puan</p>
-                </div>
-              </div>
-            ))}
+              );
+            })}
             
-            {leaderboard.length <= 3 && (
+            {leaderboard.length === 0 && (
               <div className="py-12 text-center">
-                <p className="text-gray-600 font-bold italic">Başka katılımcı bulunmuyor.</p>
+                <p className="text-gray-600 font-bold italic">Kayıtlı sonuç bulunmuyor.</p>
               </div>
             )}
           </div>

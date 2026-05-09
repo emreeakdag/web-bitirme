@@ -185,6 +185,30 @@ router.put('/:quizId/questions/:questionId', verifyToken, async (req, res) => {
   }
 });
 
+// Soru sil
+router.delete('/:quizId/questions/:questionId', verifyToken, async (req, res) => {
+  try {
+    const { quizId, questionId } = req.params;
+    
+    // Yetki kontrolü
+    const [quiz] = await pool.execute('SELECT id FROM quizzes WHERE id = ? AND teacher_id = ?', [quizId, req.user.id]);
+    if (quiz.length === 0) {
+      return res.status(403).json({ success: false, message: 'Bu soruyu silme yetkiniz yok.' });
+    }
+    
+    // Önce bu soruya verilmiş cevapları sil
+    await pool.execute('DELETE FROM quiz_answers WHERE question_id = ?', [questionId]);
+    
+    // Sonra soruyu sil
+    await pool.execute('DELETE FROM questions WHERE id = ? AND quiz_id = ?', [questionId, quizId]);
+    
+    res.json({ success: true, message: 'Soru başarıyla silindi.' });
+  } catch (error) {
+    console.error('Soru silme hatasi:', error);
+    res.status(500).json({ success: false, message: 'Soru silinirken hata olustu.' });
+  }
+});
+
 // Quiz sorularini getir (Ogretmen icin)
 router.get('/:quizId/questions', verifyToken, async (req, res) => {
   try {
@@ -197,6 +221,39 @@ router.get('/:quizId/questions', verifyToken, async (req, res) => {
   } catch (error) {
     console.error('Sorulari getirme hatasi:', error);
     res.status(500).json({ success: false, message: 'Sorular getirilirken hata olustu.' });
+  }
+});
+
+// Quiz istatistiklerini getir
+router.get('/:quizId/stats', verifyToken, async (req, res) => {
+  try {
+    const { quizId } = req.params;
+    
+    // Quiz kontrolü (Öğretmen kendi quizini mi görüyor?)
+    const [quizzes] = await pool.execute('SELECT id, title FROM quizzes WHERE id = ? AND teacher_id = ?', [quizId, req.user.id]);
+    if (quizzes.length === 0) return res.status(404).json({ success: false, message: 'Quiz bulunamadi' });
+
+    const [stats] = await pool.execute(
+      `SELECT 
+        q.id, 
+        q.question_text, 
+        q.correct_option,
+        q.option_a, q.option_b, q.option_c, q.option_d,
+        COUNT(CASE WHEN qa.is_correct = 1 THEN 1 END) as correct_count,
+        COUNT(CASE WHEN qa.is_correct = 0 THEN 1 END) as incorrect_count,
+        ((SELECT COUNT(*) FROM quiz_participants WHERE quiz_id = q.quiz_id) - COUNT(qa.id)) as empty_count
+       FROM questions q
+       LEFT JOIN quiz_answers qa ON q.id = qa.question_id
+       WHERE q.quiz_id = ?
+       GROUP BY q.id
+       ORDER BY q.order_index ASC`,
+      [quizId]
+    );
+
+    res.json({ success: true, stats, quizTitle: quizzes[0].title });
+  } catch (error) {
+    console.error('Istatistik getirme hatasi:', error);
+    res.status(500).json({ success: false, message: 'Istatistikler getirilirken hata olustu.' });
   }
 });
 
