@@ -5,7 +5,7 @@ const { generatePin } = require('../utils/generatePin');
 const router = express.Router();
 
 // Tüm quizleri getir (Ogretmen icin - giris yapmis olmali)
-router.get('/my-quizzes', verifyToken, async (req, res) => {
+router.get('/my-quizzes', verifyToken, requireRole('teacher'), async (req, res) => {
   try {
     const [quizzes] = await pool.execute(
       `SELECT q.*, 
@@ -22,7 +22,7 @@ router.get('/my-quizzes', verifyToken, async (req, res) => {
 });
 
 // Quiz bilgisi getir
-router.get('/info/:quizId', verifyToken, async (req, res) => {
+router.get('/info/:quizId', verifyToken, requireRole('teacher'), async (req, res) => {
   try {
     const [quizzes] = await pool.execute(
       `SELECT q.*, 
@@ -38,7 +38,7 @@ router.get('/info/:quizId', verifyToken, async (req, res) => {
 });
 
 // Yeni quiz olustur
-router.post('/create', verifyToken, async (req, res) => {
+router.post('/create', verifyToken, requireRole('teacher'), async (req, res) => {
   try {
     const { title, description } = req.body;
     
@@ -71,7 +71,7 @@ router.post('/create', verifyToken, async (req, res) => {
 });
 
 // Soru ekle
-router.post('/:quizId/questions', verifyToken, async (req, res) => {
+router.post('/:quizId/questions', verifyToken, requireRole('teacher'), async (req, res) => {
   try {
     const { quizId } = req.params;
     const { question_text, image_url, option_a, option_b, option_c, option_d, correct_option, time_limit, order_index } = req.body;
@@ -99,7 +99,7 @@ router.post('/:quizId/questions', verifyToken, async (req, res) => {
 });
 
 // Toplu soru ekle (Bulk insert)
-router.post('/:quizId/questions/bulk', verifyToken, async (req, res) => {
+router.post('/:quizId/questions/bulk', verifyToken, requireRole('teacher'), async (req, res) => {
   try {
     const { quizId } = req.params;
     const { questions } = req.body;
@@ -133,7 +133,7 @@ router.post('/:quizId/questions/bulk', verifyToken, async (req, res) => {
 });
 
 // Tüm soruların süresini güncelle
-router.put('/:quizId/questions/time-limit', verifyToken, async (req, res) => {
+router.put('/:quizId/questions/time-limit', verifyToken, requireRole('teacher'), async (req, res) => {
   try {
     const { quizId } = req.params;
     const { time_limit } = req.body;
@@ -160,7 +160,7 @@ router.put('/:quizId/questions/time-limit', verifyToken, async (req, res) => {
 });
 
 // Soru guncelle
-router.put('/:quizId/questions/:questionId', verifyToken, async (req, res) => {
+router.put('/:quizId/questions/:questionId', verifyToken, requireRole('teacher'), async (req, res) => {
   try {
     const { quizId, questionId } = req.params;
     const { question_text, image_url, option_a, option_b, option_c, option_d, correct_option, time_limit } = req.body;
@@ -186,7 +186,7 @@ router.put('/:quizId/questions/:questionId', verifyToken, async (req, res) => {
 });
 
 // Soru sil
-router.delete('/:quizId/questions/:questionId', verifyToken, async (req, res) => {
+router.delete('/:quizId/questions/:questionId', verifyToken, requireRole('teacher'), async (req, res) => {
   try {
     const { quizId, questionId } = req.params;
     
@@ -210,7 +210,7 @@ router.delete('/:quizId/questions/:questionId', verifyToken, async (req, res) =>
 });
 
 // Quiz sorularini getir (Ogretmen icin)
-router.get('/:quizId/questions', verifyToken, async (req, res) => {
+router.get('/:quizId/questions', verifyToken, requireRole('teacher'), async (req, res) => {
   try {
     const { quizId } = req.params;
     const [questions] = await pool.execute(
@@ -225,7 +225,7 @@ router.get('/:quizId/questions', verifyToken, async (req, res) => {
 });
 
 // Quiz istatistiklerini getir
-router.get('/:quizId/stats', verifyToken, async (req, res) => {
+router.get('/:quizId/stats', verifyToken, requireRole('teacher'), async (req, res) => {
   try {
     const { quizId } = req.params;
     
@@ -296,7 +296,7 @@ router.get('/:quizId/leaderboard', async (req, res) => {
 });
 
 // Quiz sil
-router.delete('/:quizId', verifyToken, async (req, res) => {
+router.delete('/:quizId', verifyToken, requireRole('teacher'), async (req, res) => {
   const connection = await pool.getConnection();
   try {
     const { quizId } = req.params;

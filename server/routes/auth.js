@@ -1,8 +1,49 @@
 const express = require('express');
 const bcrypt = require('bcryptjs');
+const crypto = require('crypto');
+const jwt = require('jsonwebtoken');
 const pool = require('../config/db');
 const { generateToken } = require('../middleware/auth');
 const router = express.Router();
+
+const SSO_HANDOFF_SECRET = process.env.SSO_HANDOFF_SECRET || process.env.JWT_SECRET || 'vibe-learn-sso-secret';
+
+const buildSsoEmail = (externalId) => `sso-odevportali-${String(externalId).trim()}@local`;
+
+const normalizeSsoRole = (role) => (String(role).toLowerCase() === 'teacher' ? 'teacher' : 'student');
+
+async function upsertSsoUser({ externalId, fullName, role }) {
+  const email = buildSsoEmail(externalId);
+  const normalizedRole = normalizeSsoRole(role);
+  const [existing] = await pool.execute(
+    'SELECT id, full_name, email, role FROM users WHERE email = ?',
+    [email]
+  );
+
+  if (existing.length > 0) {
+    const user = existing[0];
+    if (user.full_name !== fullName || user.role !== normalizedRole) {
+      await pool.execute(
+        'UPDATE users SET full_name = ?, role = ? WHERE email = ?',
+        [fullName, normalizedRole, email]
+      );
+    }
+    return { ...user, full_name: fullName, role: normalizedRole, email };
+  }
+
+  const passwordHash = await bcrypt.hash(crypto.randomBytes(24).toString('hex'), 10);
+  const [result] = await pool.execute(
+    'INSERT INTO users (full_name, email, password_hash, role) VALUES (?, ?, ?, ?)',
+    [fullName, email, passwordHash, normalizedRole]
+  );
+
+  return {
+    id: result.insertId,
+    full_name: fullName,
+    email,
+    role: normalizedRole
+  };
+}
 
 // Kayit olma (Register)
 router.post('/register', async (req, res) => {
@@ -82,6 +123,48 @@ router.post('/login', async (req, res) => {
   } catch (error) {
     console.error('Login hatasi:', error);
     res.status(500).json({ success: false, message: 'Giris sirasinda bir hata olustu.' });
+  }
+});
+
+router.post('/sso', async (req, res) => {
+  try {
+    const { token } = req.body || {};
+    if (!token) {
+      return res.status(400).json({ success: false, message: 'SSO token zorunludur.' });
+    }
+
+    const decoded = jwt.verify(token, SSO_HANDOFF_SECRET, {
+      issuer: 'odevportali',
+      audience: 'vibe-learn',
+    });
+
+    if (decoded.source !== 'odevportali' || !decoded.externalId || !decoded.ad_soyad) {
+      return res.status(401).json({ success: false, message: 'Gecersiz SSO tokeni.' });
+    }
+
+    const user = await upsertSsoUser({
+      externalId: decoded.externalId,
+      fullName: decoded.ad_soyad,
+      role: decoded.role,
+    });
+
+    const appUser = {
+      id: user.id,
+      full_name: user.full_name,
+      email: user.email,
+      role: user.role,
+    };
+    const appToken = generateToken(appUser);
+
+    res.json({
+      success: true,
+      message: 'SSO girisi basarili.',
+      token: appToken,
+      user: appUser
+    });
+  } catch (error) {
+    console.error('SSO hatasi:', error);
+    res.status(401).json({ success: false, message: 'SSO girişi doğrulanamadı.' });
   }
 });
 

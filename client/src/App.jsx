@@ -19,11 +19,13 @@ import JoinBoard from './pages/Board/JoinBoard';
 import BoardDetail from './pages/Board/BoardDetail';
 import ProtectedRoute from './components/ProtectedRoute';
 import ErrorBoundary from './components/ErrorBoundary';
+import SsoConsume from './pages/SsoConsume';
 
 export default function App() {
   return (
     <AuthProvider>
       <Routes>
+        <Route path="/sso" element={<SsoConsume />} />
         <Route path="/" element={<Layout />}>
           <Route index element={<Home />} />
           <Route path="login" element={<Login />} />
@@ -35,13 +37,13 @@ export default function App() {
           <Route path="quiz-results/:quizId" element={<QuizResults />} />
           
           {/* Ogretmen Routes */}
-          <Route path="my-quizzes" element={<ProtectedRoute><MyQuizzes /></ProtectedRoute>} />
-          <Route path="create-quiz" element={<ProtectedRoute><CreateQuiz /></ProtectedRoute>} />
-          <Route path="quiz/:quizId/questions" element={<ProtectedRoute><AddQuestions /></ProtectedRoute>} />
-          <Route path="quiz/:quizId/lobby" element={<ProtectedRoute><QuizLobby /></ProtectedRoute>} />
-          <Route path="quiz/:quizId/stats" element={<ProtectedRoute><QuizStats /></ProtectedRoute>} />
-          <Route path="my-boards" element={<ProtectedRoute><MyBoards /></ProtectedRoute>} />
-          <Route path="create-board" element={<ProtectedRoute><CreateBoard /></ProtectedRoute>} />
+          <Route path="my-quizzes" element={<ProtectedRoute requireTeacher><MyQuizzes /></ProtectedRoute>} />
+          <Route path="create-quiz" element={<ProtectedRoute requireTeacher><CreateQuiz /></ProtectedRoute>} />
+          <Route path="quiz/:quizId/questions" element={<ProtectedRoute requireTeacher><AddQuestions /></ProtectedRoute>} />
+          <Route path="quiz/:quizId/lobby" element={<ProtectedRoute requireTeacher><QuizLobby /></ProtectedRoute>} />
+          <Route path="quiz/:quizId/stats" element={<ProtectedRoute requireTeacher><QuizStats /></ProtectedRoute>} />
+          <Route path="my-boards" element={<ProtectedRoute requireTeacher><MyBoards /></ProtectedRoute>} />
+          <Route path="create-board" element={<ProtectedRoute requireTeacher><CreateBoard /></ProtectedRoute>} />
           <Route path="joined-boards" element={<ProtectedRoute><JoinedBoards /></ProtectedRoute>} />
           
           {/* Public / Anonymous Routes */}

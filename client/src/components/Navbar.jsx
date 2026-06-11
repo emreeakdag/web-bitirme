@@ -25,7 +25,7 @@ export default function Navbar() {
               Vibe Learn
             </Link>
             
-            {isAuthenticated && (
+            {isAuthenticated && isTeacher && (
               <div className="hidden lg:flex gap-8 items-center">
                 <Link to="/my-quizzes" className={getLinkClass('/my-quizzes')}>
                   Yarışmalarım
@@ -87,7 +87,7 @@ export default function Navbar() {
         {/* Mobile Menu */}
         {isMobileMenuOpen && (
           <div className="lg:hidden pb-6 space-y-4">
-            {isAuthenticated && (
+            {isAuthenticated && isTeacher && (
               <div className="flex flex-col gap-4 pb-4 border-b border-[#333333]">
                 <span className="text-xs font-bold text-[#30A138] uppercase tracking-wider">
                   HOŞ GELDİN, {user.full_name}

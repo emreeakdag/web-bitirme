@@ -214,7 +214,7 @@ router.put('/public/posts/:postId', async (req, res) => {
 // ==============================
 
 // Yeni pano olustur (Ogretmen)
-router.post('/create', verifyToken, async (req, res) => {
+router.post('/create', verifyToken, requireRole('teacher'), async (req, res) => {
   try {
     const { title, description, bg_image } = req.body;
     
@@ -253,7 +253,7 @@ router.post('/create', verifyToken, async (req, res) => {
 });
 
 // Ogretmenin panolarini getir
-router.get('/my-boards', verifyToken, async (req, res) => {
+router.get('/my-boards', verifyToken, requireRole('teacher'), async (req, res) => {
   try {
     const [boards] = await pool.execute(
       `SELECT b.*, 
