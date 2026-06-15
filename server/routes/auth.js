@@ -7,6 +7,11 @@ const { generateToken } = require('../middleware/auth');
 const router = express.Router();
 
 const SSO_HANDOFF_SECRET = process.env.SSO_HANDOFF_SECRET || process.env.JWT_SECRET || 'vibe-learn-sso-secret';
+const SSO_FALLBACK_SECRETS = [
+  process.env.SSO_HANDOFF_SECRET,
+  process.env.JWT_SECRET,
+  'vibe-learn-sso-secret',
+].filter(Boolean);
 
 const buildSsoEmail = (externalId) => `sso-odevportali-${String(externalId).trim()}@local`;
 
@@ -133,10 +138,29 @@ router.post('/sso', async (req, res) => {
       return res.status(400).json({ success: false, message: 'SSO token zorunludur.' });
     }
 
-    const decoded = jwt.verify(token, SSO_HANDOFF_SECRET, {
-      issuer: 'odevportali',
-      audience: 'vibe-learn',
-    });
+    let decoded = null;
+    let lastError = null;
+    for (const secret of SSO_FALLBACK_SECRETS) {
+      try {
+        decoded = jwt.verify(token, secret, {
+          issuer: 'odevportali',
+          audience: 'vibe-learn',
+        });
+        break;
+      } catch (error) {
+        lastError = error;
+      }
+    }
+
+    if (!decoded) {
+      const message =
+        lastError?.name === 'TokenExpiredError'
+          ? 'SSO token süresi dolmuş.'
+          : lastError?.message === 'invalid signature'
+            ? 'SSO token imzası doğrulanamadı.'
+            : 'SSO token doğrulanamadı.';
+      return res.status(401).json({ success: false, message });
+    }
 
     if (decoded.source !== 'odevportali' || !decoded.externalId || !decoded.ad_soyad) {
       return res.status(401).json({ success: false, message: 'Gecersiz SSO tokeni.' });
@@ -164,7 +188,7 @@ router.post('/sso', async (req, res) => {
     });
   } catch (error) {
     console.error('SSO hatasi:', error);
-    res.status(401).json({ success: false, message: 'SSO girişi doğrulanamadı.' });
+    res.status(401).json({ success: false, message: error?.message || 'SSO girişi doğrulanamadı.' });
   }
 });
 
