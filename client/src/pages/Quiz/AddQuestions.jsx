@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { apiGet, apiPost, apiPut, apiDelete } from '../../lib/api';
+import { API_BASE_URL, apiGet, apiPost, apiPut, apiDelete } from '../../lib/api';
 import * as XLSX from 'xlsx';
 
 export default function AddQuestions() {
@@ -45,7 +45,7 @@ export default function AddQuestions() {
 
     try {
       const token = sessionStorage.getItem('token');
-      const response = await fetch('/api/upload', {
+      const response = await fetch(`${API_BASE_URL}/upload`, {
         method: 'POST',
         headers: {
           ...(token ? { Authorization: `Bearer ${token}` } : {})

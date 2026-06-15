@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { QRCodeSVG } from 'qrcode.react';
-import { apiGet, apiPost, apiPut, apiDelete } from '../../lib/api';
+import { API_BASE_URL, apiGet, apiPost, apiPut, apiDelete } from '../../lib/api';
 import { getSocket, joinBoardRoom, leaveBoardRoom, emitBoardEvent } from '../../lib/socket';
 import { BG_OPTIONS } from '../../lib/constants';
 import { getRouterBasename, resolveAppBaseUrl } from '../../lib/runtime';
@@ -201,7 +201,7 @@ export default function BoardDetail() {
         const formData = new FormData();
         formData.append('file', file);
         const token = sessionStorage.getItem('token');
-        const uploadRes = await fetch('/api/upload', {
+        const uploadRes = await fetch(`${API_BASE_URL}/upload`, {
           method: 'POST',
           headers: { Authorization: `Bearer ${token}` },
           body: formData

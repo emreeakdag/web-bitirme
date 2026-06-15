@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { apiPost } from '../lib/api';
+import { API_BASE_URL } from '../lib/api';
 import { useAuth } from '../context/AuthContext';
 
 export default function SsoConsume() {
@@ -15,24 +15,33 @@ export default function SsoConsume() {
     const consume = async () => {
       if (!token) {
         setMessage('SSO token bulunamadı.');
-        navigate('/login', { replace: true });
         return;
       }
 
       try {
         setMessage('Oturum doğrulanıyor...');
-        const data = await apiPost('/auth/sso', { token });
-        if (data?.success) {
-          login(data.token, data.user);
-          navigate('/', { replace: true });
-          return;
+        const response = await fetch(`${API_BASE_URL}/auth/sso`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ token }),
+        });
+        const data = await response.json().catch(() => null);
+
+        if (!response.ok) {
+          throw new Error(data?.error || data?.message || `SSO doğrulanamadı (${response.status}).`);
         }
 
-        setMessage(data?.message || 'SSO doğrulanamadı.');
-        navigate('/login', { replace: true });
+        if (!data?.token || !data?.user) {
+          throw new Error('SSO yanıtı eksik geldi. token veya user bulunamadı.');
+        }
+
+        login(data.token, data.user);
+        navigate('/', { replace: true });
+        return;
       } catch (error) {
-        setMessage(error.message || 'SSO doğrulanamadı.');
-        navigate('/login', { replace: true });
+        setMessage(error?.message || 'SSO doğrulanamadı.');
       }
     };
 

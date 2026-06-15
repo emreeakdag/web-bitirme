@@ -30,7 +30,7 @@ export async function resolveAppBaseUrl() {
   }
 
   try {
-    const response = await fetch('http://localhost:5000/api/local-ip');
+    const response = await fetch('/api/local-ip');
     const data = await response.json();
     const ip = data?.ip || 'localhost';
     const origin = `http://${ip}:5173`;

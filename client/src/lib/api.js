@@ -1,14 +1,17 @@
 import { getRouterBasename } from './runtime';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL?.trim() || '/api';
+export const API_BASE_URL =
+  import.meta.env.VITE_API_URL?.trim() ||
+  (import.meta.env.DEV ? 'http://localhost:5000/api' : '/api');
 
 export async function apiFetch(endpoint, options = {}) {
   const token = sessionStorage.getItem('token');
+  const isFormData = typeof FormData !== 'undefined' && options.body instanceof FormData;
   
   const config = {
     ...options,
     headers: {
-      'Content-Type': 'application/json',
+      ...(isFormData ? {} : { 'Content-Type': 'application/json' }),
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
       ...options.headers,
     },
