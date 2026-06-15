@@ -128,7 +128,8 @@ CREATE TABLE IF NOT EXISTS boards (
 CREATE TABLE IF NOT EXISTS board_posts (
     id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     board_id BIGINT UNSIGNED NOT NULL,
-    user_id BIGINT UNSIGNED NOT NULL,
+    user_id BIGINT UNSIGNED NULL,
+    guest_nickname VARCHAR(50),
     content TEXT NOT NULL,
     cover_image_url VARCHAR(500),
     file_url VARCHAR(500),
@@ -150,11 +151,13 @@ CREATE TABLE IF NOT EXISTS board_posts (
 CREATE TABLE IF NOT EXISTS board_likes (
     id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     post_id BIGINT UNSIGNED NOT NULL,
-    user_id BIGINT UNSIGNED NOT NULL,
+    user_id BIGINT UNSIGNED NULL,
+    guest_nickname VARCHAR(50),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (post_id) REFERENCES board_posts(id) ON DELETE CASCADE,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-    UNIQUE KEY unique_like (post_id, user_id)
+    UNIQUE KEY unique_like (post_id, user_id),
+    UNIQUE KEY unique_guest_like (post_id, guest_nickname)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ============================================
