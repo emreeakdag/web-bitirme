@@ -24,6 +24,17 @@ async function alter() {
     }
 
     try {
+      await connection.query('ALTER TABLE boards ADD COLUMN allow_posts BOOLEAN DEFAULT TRUE AFTER is_active;');
+      console.log('Column allow_posts added successfully.');
+    } catch (err) {
+      if (err.code === 'ER_DUP_FIELDNAME') {
+        console.log('Column allow_posts already exists.');
+      } else {
+        throw err;
+      }
+    }
+
+    try {
       await connection.query('ALTER TABLE questions ADD COLUMN image_url VARCHAR(500) AFTER question_text;');
       console.log('Column image_url added successfully.');
     } catch (err) {
