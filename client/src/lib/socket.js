@@ -1,6 +1,8 @@
 import { io } from 'socket.io-client';
 
-const SOCKET_URL = window.location.origin;
+const SOCKET_URL =
+  import.meta.env.VITE_SOCKET_URL?.trim() ||
+  (import.meta.env.PROD ? 'https://vibe.selakademi.tr' : window.location.origin);
 
 let socket = null;
 

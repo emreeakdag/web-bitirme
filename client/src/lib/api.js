@@ -2,7 +2,7 @@ import { getRouterBasename } from './runtime';
 
 export const API_BASE_URL =
   import.meta.env.VITE_API_URL?.trim() ||
-  (import.meta.env.DEV ? 'http://localhost:5000/api' : '/api');
+  (import.meta.env.PROD ? 'https://vibe.selakademi.tr/api' : 'http://localhost:5000/api');
 
 export async function apiFetch(endpoint, options = {}) {
   const token = sessionStorage.getItem('token');
