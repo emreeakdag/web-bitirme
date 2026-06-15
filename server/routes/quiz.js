@@ -1,8 +1,29 @@
 const express = require('express');
+const jwt = require('jsonwebtoken');
 const pool = require('../config/db');
 const { verifyToken, requireRole } = require('../middleware/auth');
 const { generatePin } = require('../utils/generatePin');
 const router = express.Router();
+const JWT_SECRET = process.env.JWT_SECRET || 'fallback-secret';
+
+async function getOptionalUser(req) {
+  const authHeader = req.headers.authorization;
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return null;
+  }
+
+  try {
+    const token = authHeader.split(' ')[1];
+    const decoded = jwt.verify(token, JWT_SECRET);
+    const [users] = await pool.execute(
+      'SELECT id, full_name, email, role FROM users WHERE id = ?',
+      [decoded.id]
+    );
+    return users.length > 0 ? users[0] : null;
+  } catch {
+    return null;
+  }
+}
 
 // Tüm quizleri getir (Ogretmen icin - giris yapmis olmali)
 router.get('/my-quizzes', verifyToken, requireRole('teacher'), async (req, res) => {
@@ -17,6 +38,42 @@ router.get('/my-quizzes', verifyToken, requireRole('teacher'), async (req, res) 
     res.json({ success: true, quizzes });
   } catch (error) {
     console.error('Quiz listesi hatasi:', error);
+    res.status(500).json({ success: false, message: 'Quizler getirilirken hata olustu.' });
+  }
+});
+
+// Ogrencinin katildigi quizleri getir
+router.get('/joined-quizzes', verifyToken, async (req, res) => {
+  try {
+    const [quizzes] = await pool.execute(
+      `SELECT DISTINCT
+        q.id,
+        q.title,
+        q.description,
+        q.pin_code,
+        q.status,
+        q.is_active,
+        q.created_at,
+        u.full_name as teacher_name,
+        (
+          SELECT COUNT(*) FROM quiz_participants qp2
+          WHERE qp2.quiz_id = q.id
+        ) AS participant_count,
+        (
+          SELECT MAX(qp3.joined_at) FROM quiz_participants qp3
+          WHERE qp3.quiz_id = q.id AND qp3.user_id = ?
+        ) AS joined_at
+       FROM quizzes q
+       JOIN users u ON q.teacher_id = u.id
+       JOIN quiz_participants qp ON qp.quiz_id = q.id
+       WHERE qp.user_id = ?
+       ORDER BY joined_at DESC, q.created_at DESC`,
+      [req.user.id, req.user.id]
+    );
+
+    res.json({ success: true, quizzes });
+  } catch (error) {
+    console.error('Katilinan quizler hatasi:', error);
     res.status(500).json({ success: false, message: 'Quizler getirilirken hata olustu.' });
   }
 });
@@ -273,7 +330,18 @@ router.get('/join/:pin', async (req, res) => {
     }
     
     const quiz = quizzes[0];
-    res.json({ success: true, quiz });
+    const currentUser = await getOptionalUser(req);
+
+    res.json({
+      success: true,
+      quiz,
+      currentUser: currentUser ? {
+        id: currentUser.id,
+        full_name: currentUser.full_name,
+        email: currentUser.email,
+        role: currentUser.role
+      } : null
+    });
   } catch (error) {
     console.error('PIN kontrol hatasi:', error);
     res.status(500).json({ success: false, message: 'Quiz bulunurken hata olustu.' });

@@ -45,8 +45,7 @@ export default function AddQuestions() {
 
     try {
       const token = sessionStorage.getItem('token');
-      const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
-      const response = await fetch(`${API_BASE_URL}/upload`, {
+      const response = await fetch('/api/upload', {
         method: 'POST',
         headers: {
           ...(token ? { Authorization: `Bearer ${token}` } : {})

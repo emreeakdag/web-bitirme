@@ -4,38 +4,114 @@ function setupSocketHandlers(io) {
   io.on('connection', (socket) => {
     console.log(`Socket baglandi: ${socket.id}`);
 
+    const emitCurrentQuizState = async (targetSocket, quizId) => {
+      const [quizzes] = await pool.execute(
+        'SELECT status, current_question_index FROM quizzes WHERE id = ?',
+        [quizId]
+      );
+
+      if (quizzes.length === 0) return;
+
+      const quiz = quizzes[0];
+
+      if (quiz.status === 'completed') {
+        const [leaderboard] = await pool.execute(
+          'SELECT nickname, score, correct_answers, total_answers FROM quiz_participants WHERE quiz_id = ? ORDER BY score DESC, correct_answers DESC, nickname ASC LIMIT 15',
+          [quizId]
+        );
+        targetSocket.emit('quiz-ended', { leaderboard });
+        return;
+      }
+
+      if (quiz.status !== 'active') return;
+
+      const [totalRows] = await pool.execute(
+        'SELECT COUNT(*) as total FROM questions WHERE quiz_id = ?',
+        [quizId]
+      );
+
+      const [questionRows] = await pool.execute(
+        'SELECT * FROM questions WHERE quiz_id = ? AND order_index = ?',
+        [quizId, quiz.current_question_index || 0]
+      );
+
+      let question = questionRows[0];
+      if (!question) {
+        const [fallbackRows] = await pool.execute(
+          'SELECT * FROM questions WHERE quiz_id = ? ORDER BY order_index ASC LIMIT 1',
+          [quizId]
+        );
+        question = fallbackRows[0];
+      }
+
+      if (!question) return;
+
+      const orderIndex = question.order_index || 0;
+      targetSocket.emit(orderIndex === 0 ? 'quiz-started' : 'new-question', {
+        totalQuestions: totalRows[0].total,
+        question: {
+          id: question.id,
+          text: question.question_text,
+          image_url: question.image_url,
+          options: {
+            A: question.option_a,
+            B: question.option_b,
+            C: question.option_c,
+            D: question.option_d
+          },
+          timeLimit: question.time_limit,
+          orderIndex
+        }
+      });
+    };
+
     // ============================================
     // QUIZ (Yarismaya) EVENTLERI
     // ============================================
 
-    socket.on('host-join-quiz', ({ quizId }) => {
-      const room = `quiz_${quizId}`;
-      socket.join(room);
+    socket.on('host-join-quiz', async ({ quizId }) => {
+      try {
+        const room = `quiz_${quizId}`;
+        socket.join(room);
+        socket.quizId = quizId;
+        await emitCurrentQuizState(socket, quizId);
+      } catch (error) {
+        console.error('host-join-quiz senkron hatasi:', error);
+      }
     });
 
-    socket.on('join-quiz', async ({ pin, nickname, quizId }) => {
+    socket.on('join-quiz', async ({ pin, nickname, quizId, userId }) => {
       try {
         const room = `quiz_${quizId}`;
         socket.join(room);
         socket.nickname = nickname;
         socket.quizId = quizId;
+        socket.userId = userId || null;
 
         // Katilimciyi kaydet veya guncelle
-        const [existing] = await pool.execute(
-          'SELECT id FROM quiz_participants WHERE quiz_id = ? AND nickname = ?',
-          [quizId, nickname]
-        );
+        const existingQuery = userId
+          ? 'SELECT id FROM quiz_participants WHERE quiz_id = ? AND user_id = ?'
+          : 'SELECT id FROM quiz_participants WHERE quiz_id = ? AND nickname = ?';
+        const existingParams = userId ? [quizId, userId] : [quizId, nickname];
+        const [existing] = await pool.execute(existingQuery, existingParams);
 
         if (existing.length > 0) {
           await pool.execute(
-            'UPDATE quiz_participants SET socket_id = ?, is_active = TRUE, left_at = NULL WHERE id = ?',
-            [socket.id, existing[0].id]
+            'UPDATE quiz_participants SET socket_id = ?, is_active = TRUE, left_at = NULL, nickname = COALESCE(?, nickname), user_id = COALESCE(?, user_id) WHERE id = ?',
+            [socket.id, nickname, userId || null, existing[0].id]
           );
         } else {
-          await pool.execute(
-            'INSERT INTO quiz_participants (quiz_id, nickname, socket_id, is_active) VALUES (?, ?, ?, TRUE)',
-            [quizId, nickname, socket.id]
-          );
+          if (userId) {
+            await pool.execute(
+              'INSERT INTO quiz_participants (quiz_id, user_id, nickname, socket_id, is_active) VALUES (?, ?, ?, ?, TRUE)',
+              [quizId, userId, nickname, socket.id]
+            );
+          } else {
+            await pool.execute(
+              'INSERT INTO quiz_participants (quiz_id, nickname, socket_id, is_active) VALUES (?, ?, ?, TRUE)',
+              [quizId, nickname, socket.id]
+            );
+          }
         }
 
         // Oda bilgilerini guncelle
@@ -46,6 +122,7 @@ function setupSocketHandlers(io) {
 
         socket.to(room).emit('player-joined', { nickname, totalPlayers: participants.length });
         socket.emit('joined-success', { quizId, nickname, totalPlayers: participants.length });
+        await emitCurrentQuizState(socket, quizId);
 
         console.log(`${nickname} katildi: ${pin}`);
       } catch (error) {

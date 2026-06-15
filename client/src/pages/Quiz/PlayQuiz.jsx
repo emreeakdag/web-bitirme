@@ -12,6 +12,13 @@ export default function PlayQuiz() {
   const { quizId } = useParams();
   const navigate = useNavigate();
   const isHost = new URLSearchParams(window.location.search).get('host') === 'true';
+  const currentUser = (() => {
+    try {
+      return JSON.parse(sessionStorage.getItem('user') || 'null');
+    } catch {
+      return null;
+    }
+  })();
 
   const [nickname] = useState(() => sessionStorage.getItem('quiz_nickname') || 'Misafir');
   const [pin] = useState(() => sessionStorage.getItem('quiz_pin') || '');
@@ -51,6 +58,7 @@ export default function PlayQuiz() {
     }
 
     const socket = joinQuizRoom(quizId, pin, nickname, {
+      userId: currentUser?.id || null,
       onJoined: (data) => {
         console.log('Yarismaya katildiniz:', data);
         isJoinedRef.current = true;
@@ -117,7 +125,7 @@ export default function PlayQuiz() {
       socket.off('quiz-ended');
       socket.off('error');
     };
-  }, [quizId, pin, nickname, navigate, isHost, totalQuestions]);
+  }, [quizId, pin, nickname, navigate, isHost, totalQuestions, currentUser?.id]);
 
   const submitAnswer = useCallback((option, timeTaken) => {
     if (selectedOption || status !== 'playing') return;

@@ -8,6 +8,7 @@ import JoinQuiz from './pages/Quiz/JoinQuiz';
 import PlayQuiz from './pages/Quiz/PlayQuiz';
 import QuizResults from './pages/Quiz/QuizResults';
 import MyQuizzes from './pages/Quiz/MyQuizzes';
+import JoinedQuizzes from './pages/Quiz/JoinedQuizzes';
 import CreateQuiz from './pages/Quiz/CreateQuiz';
 import AddQuestions from './pages/Quiz/AddQuestions';
 import QuizLobby from './pages/Quiz/QuizLobby';
@@ -35,6 +36,7 @@ export default function App() {
           <Route path="join-quiz" element={<JoinQuiz />} />
           <Route path="play-quiz/:quizId" element={<ErrorBoundary><PlayQuiz /></ErrorBoundary>} />
           <Route path="quiz-results/:quizId" element={<QuizResults />} />
+          <Route path="joined-quizzes" element={<ProtectedRoute><JoinedQuizzes /></ProtectedRoute>} />
           
           {/* Ogretmen Routes */}
           <Route path="my-quizzes" element={<ProtectedRoute requireTeacher><MyQuizzes /></ProtectedRoute>} />

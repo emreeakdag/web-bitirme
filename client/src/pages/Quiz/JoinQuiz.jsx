@@ -2,6 +2,46 @@ import { useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { apiGet } from '../../lib/api';
 
+const getCurrentUser = () => {
+  try {
+    return JSON.parse(sessionStorage.getItem('user') || 'null');
+  } catch {
+    return null;
+  }
+};
+
+const getJoinedQuizStorageKey = () => {
+  try {
+    const user = getCurrentUser();
+    return user?.id ? `joined_quizzes_${user.id}` : 'joined_quizzes_guest';
+  } catch {
+    return 'joined_quizzes_guest';
+  }
+};
+
+const saveJoinedQuiz = (quiz) => {
+  if (!quiz?.id) return;
+  const user = getCurrentUser();
+  if (user?.id) return;
+
+  const storageKey = getJoinedQuizStorageKey();
+  const stored = JSON.parse(localStorage.getItem(storageKey) || '[]');
+  const next = [
+    {
+      id: quiz.id,
+      title: quiz.title,
+      description: quiz.description || '',
+      pin_code: quiz.pin_code,
+      status: quiz.status,
+      is_active: quiz.is_active,
+      joined_at: new Date().toISOString(),
+    },
+    ...stored.filter((item) => item.id !== quiz.id),
+  ];
+
+  localStorage.setItem(storageKey, JSON.stringify(next));
+};
+
 export default function JoinQuiz() {
   const [searchParams] = useSearchParams();
   const [pin, setPin] = useState(searchParams.get('pin') || '');
@@ -22,6 +62,7 @@ export default function JoinQuiz() {
         sessionStorage.setItem('quiz_pin', pin.toUpperCase());
         sessionStorage.setItem('quiz_nickname', nickname);
         sessionStorage.setItem('quiz_id', data.quiz.id);
+        saveJoinedQuiz(data.quiz);
         
         navigate(`/play-quiz/${data.quiz.id}`);
       }

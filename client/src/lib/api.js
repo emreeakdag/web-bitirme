@@ -1,4 +1,6 @@
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'api';
+import { getRouterBasename } from './runtime';
+
+const API_BASE_URL = import.meta.env.VITE_API_URL?.trim() || '/api';
 
 export async function apiFetch(endpoint, options = {}) {
   const token = sessionStorage.getItem('token');
@@ -17,7 +19,8 @@ export async function apiFetch(endpoint, options = {}) {
   if (response.status === 401) {
     sessionStorage.removeItem('token');
     sessionStorage.removeItem('user');
-    window.location.href = '/login';
+    const loginPath = `${getRouterBasename().replace(/\/$/, '')}/login`;
+    window.location.href = loginPath === '/login' ? loginPath : loginPath.replace(/\/+/g, '/');
     return;
   }
 

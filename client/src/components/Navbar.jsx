@@ -8,9 +8,10 @@ export default function Navbar() {
   const location = useLocation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
+  const isStudent = isAuthenticated && !isTeacher;
   const isActive = (path) => location.pathname === path;
-  
-  const linkBase = "text-xs font-bold uppercase tracking-wider transition-all duration-300 relative py-2";
+  const linkBase = 'text-xs font-bold uppercase tracking-wider transition-all duration-300 relative py-2';
+
   const getLinkClass = (path) => {
     return `${linkBase} ${isActive(path) ? 'text-white after:content-[""] after:absolute after:bottom-0 after:left-0 after:w-full after:h-[2px] after:bg-[#30A138]' : 'text-gray-400 hover:text-white'}`;
   };
@@ -21,11 +22,13 @@ export default function Navbar() {
         <div className="flex justify-between h-20 items-center">
           <div className="flex-shrink-0 flex items-center gap-12">
             <Link to="/" className="text-2xl font-extrabold tracking-tight text-white flex items-center gap-2">
-              <svg className="w-8 h-8 text-[#30A138]" fill="currentColor" viewBox="0 0 24 24"><path d="M12 3L1 9L4 10.63L4 17C4 18.66 7.58 20 12 20C16.42 20 20 18.66 20 17V10.63L23 9L12 3ZM12 18C8.69 18 6 16.88 6 15.5C6 14.12 8.69 13 12 13C15.31 13 18 14.12 18 15.5C18 16.88 15.31 18 12 18ZM12 11.08L4.25 7.64L12 4.21L19.75 7.64L12 11.08Z"/></svg>
+              <svg className="w-8 h-8 text-[#30A138]" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M12 3L1 9L4 10.63L4 17C4 18.66 7.58 20 12 20C16.42 20 20 18.66 20 17V10.63L23 9L12 3ZM12 18C8.69 18 6 16.88 6 15.5C6 14.12 8.69 13 12 13C15.31 13 18 14.12 18 15.5C18 16.88 15.31 18 12 18ZM12 11.08L4.25 7.64L12 4.21L19.75 7.64L12 11.08Z" />
+              </svg>
               Vibe Learn
             </Link>
-            
-            {isAuthenticated && isTeacher && (
+
+            {isTeacher && (
               <div className="hidden lg:flex gap-8 items-center">
                 <Link to="/my-quizzes" className={getLinkClass('/my-quizzes')}>
                   Yarışmalarım
@@ -33,13 +36,24 @@ export default function Navbar() {
                 <Link to="/create-quiz" className={getLinkClass('/create-quiz')}>
                   Quiz Oluştur
                 </Link>
-                <Link to="/my-boards" className={isActive('/my-boards') || isActive('/joined-boards') ? getLinkClass('/my-boards') : getLinkClass('/my-boards').replace("text-black after", "text-gray-400 hover:text-black")}>
+                <Link to="/my-boards" className={isActive('/my-boards') || isActive('/joined-boards') ? getLinkClass('/my-boards') : getLinkClass('/my-boards').replace('text-black after', 'text-gray-400 hover:text-black')}>
+                  Panolarım
+                </Link>
+              </div>
+            )}
+
+            {isStudent && (
+              <div className="hidden lg:flex gap-8 items-center">
+                <Link to="/joined-quizzes" className={getLinkClass('/joined-quizzes')}>
+                  Yarışmalarım
+                </Link>
+                <Link to="/joined-boards" className={getLinkClass('/joined-boards')}>
                   Panolarım
                 </Link>
               </div>
             )}
           </div>
-          
+
           <div className="flex items-center gap-4 lg:gap-6">
             <div className="hidden lg:flex items-center gap-6">
               <Link to="/join-board" className="text-xs font-bold text-gray-400 hover:text-white uppercase tracking-wider">
@@ -63,8 +77,11 @@ export default function Navbar() {
                   <span className="text-xs font-bold text-white uppercase tracking-wider">
                     {user.full_name}
                   </span>
-                  <button 
-                    onClick={() => { logout(); navigate('/'); }}
+                  <button
+                    onClick={() => {
+                      logout();
+                      navigate('/');
+                    }}
                     className="text-xs font-bold text-gray-400 hover:text-white uppercase tracking-wider"
                   >
                     Çıkış
@@ -73,37 +90,52 @@ export default function Navbar() {
               )}
             </div>
 
-            <button 
+            <button
               className="lg:hidden text-gray-400 hover:text-white p-2"
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             >
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d={isMobileMenuOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16M4 18h16"}/>
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d={isMobileMenuOpen ? 'M6 18L18 6M6 6l12 12' : 'M4 6h16M4 12h16M4 18h16'} />
               </svg>
             </button>
           </div>
         </div>
 
-        {/* Mobile Menu */}
         {isMobileMenuOpen && (
           <div className="lg:hidden pb-6 space-y-4">
-            {isAuthenticated && isTeacher && (
+            {(isTeacher || isStudent) && (
               <div className="flex flex-col gap-4 pb-4 border-b border-[#333333]">
                 <span className="text-xs font-bold text-[#30A138] uppercase tracking-wider">
-                  HOŞ GELDİN, {user.full_name}
+                  Hoş geldin, {user.full_name}
                 </span>
-                <Link to="/my-quizzes" onClick={() => setIsMobileMenuOpen(false)} className="text-sm font-bold text-gray-300 hover:text-white transition-colors">
-                  Yarışmalarım
-                </Link>
-                <Link to="/create-quiz" onClick={() => setIsMobileMenuOpen(false)} className="text-sm font-bold text-gray-300 hover:text-white transition-colors">
-                  Quiz Oluştur
-                </Link>
-                <Link to="/my-boards" onClick={() => setIsMobileMenuOpen(false)} className="text-sm font-bold text-gray-300 hover:text-white transition-colors">
-                  Panolarım
-                </Link>
+
+                {isTeacher && (
+                  <>
+                    <Link to="/my-quizzes" onClick={() => setIsMobileMenuOpen(false)} className="text-sm font-bold text-gray-300 hover:text-white transition-colors">
+                      Yarışmalarım
+                    </Link>
+                    <Link to="/create-quiz" onClick={() => setIsMobileMenuOpen(false)} className="text-sm font-bold text-gray-300 hover:text-white transition-colors">
+                      Quiz Oluştur
+                    </Link>
+                    <Link to="/my-boards" onClick={() => setIsMobileMenuOpen(false)} className="text-sm font-bold text-gray-300 hover:text-white transition-colors">
+                      Panolarım
+                    </Link>
+                  </>
+                )}
+
+                {isStudent && (
+                  <>
+                    <Link to="/joined-quizzes" onClick={() => setIsMobileMenuOpen(false)} className="text-sm font-bold text-gray-300 hover:text-white transition-colors">
+                      Yarışmalarım
+                    </Link>
+                    <Link to="/joined-boards" onClick={() => setIsMobileMenuOpen(false)} className="text-sm font-bold text-gray-300 hover:text-white transition-colors">
+                      Panolarım
+                    </Link>
+                  </>
+                )}
               </div>
             )}
-            
+
             <div className="flex flex-col gap-4">
               <Link to="/join-board" onClick={() => setIsMobileMenuOpen(false)} className="text-sm font-bold text-gray-300 hover:text-white transition-colors">
                 Panoya Katıl
@@ -111,7 +143,7 @@ export default function Navbar() {
               <Link to="/join-quiz" onClick={() => setIsMobileMenuOpen(false)} className="text-sm font-bold text-gray-300 hover:text-white transition-colors">
                 Yarışmaya Katıl
               </Link>
-              
+
               {!isAuthenticated ? (
                 <div className="flex flex-col gap-3 pt-2">
                   <Link to="/login" onClick={() => setIsMobileMenuOpen(false)} className="text-sm font-bold text-gray-300 hover:text-white transition-colors">
@@ -122,8 +154,12 @@ export default function Navbar() {
                   </Link>
                 </div>
               ) : (
-                <button 
-                  onClick={() => { logout(); setIsMobileMenuOpen(false); navigate('/'); }}
+                <button
+                  onClick={() => {
+                    logout();
+                    setIsMobileMenuOpen(false);
+                    navigate('/');
+                  }}
                   className="text-sm font-bold text-red-400 hover:text-red-300 transition-colors text-left pt-2"
                 >
                   Çıkış

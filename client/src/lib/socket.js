@@ -1,6 +1,6 @@
 import { io } from 'socket.io-client';
 
-const SOCKET_URL = import.meta.env.VITE_API_URL?.replace('/api', '') || window.location.origin;
+const SOCKET_URL = window.location.origin;
 
 let socket = null;
 
@@ -26,7 +26,7 @@ export function joinQuizRoom(quizId, pin, nickname, callbacks = {}, isHost = fal
   if (isHost) {
     s.emit('host-join-quiz', { quizId });
   } else {
-    s.emit('join-quiz', { quizId, pin, nickname });
+    s.emit('join-quiz', { quizId, pin, nickname, userId: callbacks.userId || null });
   }
   
   if (callbacks.onJoined) s.on('joined-success', callbacks.onJoined);

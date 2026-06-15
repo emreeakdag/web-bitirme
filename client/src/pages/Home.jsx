@@ -89,7 +89,7 @@ const subjects = [
 ];
 
 export default function Home() {
-  const { isAuthenticated, isTeacher } = useAuth();
+  const { isAuthenticated, isTeacher, isStudent } = useAuth();
   const [currentSubjectIndex, setCurrentSubjectIndex] = useState(0);
 
   useEffect(() => {
@@ -208,10 +208,19 @@ export default function Home() {
           <Link to="/register" className="btn-primary">
             HEMEN KAYIT OL
           </Link>
-        ) : (
+        ) : isTeacher ? (
           <Link to="/create-quiz" className="btn-primary">
             YENİ İÇERİK OLUŞTUR
           </Link>
+        ) : (
+          <div className="flex flex-col sm:flex-row gap-3 justify-center">
+            <Link to="/joined-quizzes" className="btn-primary">
+              YARIŞMALARIM
+            </Link>
+            <Link to="/joined-boards" className="btn-secondary">
+              PANOLARIM
+            </Link>
+          </div>
         )}
       </div>
 

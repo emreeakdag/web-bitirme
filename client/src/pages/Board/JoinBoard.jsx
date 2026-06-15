@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { apiGet } from '../../lib/api';
+import { apiGet, apiPost } from '../../lib/api';
 
 export default function JoinBoard() {
   const [searchParams] = useSearchParams();
@@ -16,13 +16,34 @@ export default function JoinBoard() {
     setLoading(true);
 
     try {
+      const token = sessionStorage.getItem('token');
+
+      if (token) {
+        const found = await apiGet(`/board/find/${code.toUpperCase()}`);
+        if (!found.success) {
+          setError(found.message || 'Pano bulunamadi veya pasif.');
+          return;
+        }
+
+        if (!found.board.is_member) {
+          const joinRes = await apiPost(`/board/${found.board.id}/join`, {});
+          if (!joinRes.success) {
+            setError(joinRes.message || 'Panoya katilma islemi basarisiz.');
+            return;
+          }
+        }
+
+        navigate(`/board/${found.board.id}`);
+        return;
+      }
+
       const data = await apiGet(`/board/join-public/${code.toUpperCase()}`);
       if (data.success) {
         // PIN ve nickname'i sessionStorage'a kaydet (anonim kullanim icin)
         sessionStorage.setItem('board_code', code.toUpperCase());
         sessionStorage.setItem('board_nickname', nickname);
         sessionStorage.setItem('board_id', data.board.id);
-        
+
         navigate(`/board/${data.board.id}`);
       }
     } catch (err) {

@@ -4,6 +4,7 @@ import { QRCodeSVG } from 'qrcode.react';
 import { apiGet, apiPost, apiPut, apiDelete } from '../../lib/api';
 import { getSocket, joinBoardRoom, leaveBoardRoom, emitBoardEvent } from '../../lib/socket';
 import { BG_OPTIONS } from '../../lib/constants';
+import { getRouterBasename, resolveAppBaseUrl } from '../../lib/runtime';
 
 export default function BoardDetail() {
   const { boardId } = useParams();
@@ -72,7 +73,8 @@ export default function BoardDetail() {
       const nickname = sessionStorage.getItem('board_nickname');
 
       if (isGuest && !nickname) {
-        window.location.href = '/join-board';
+        const joinPath = `${getRouterBasename().replace(/\/$/, '')}/join-board`;
+        window.location.href = joinPath === '/join-board' ? joinPath : joinPath.replace(/\/+/g, '/');
         return;
       }
 
@@ -100,16 +102,12 @@ export default function BoardDetail() {
   };
 
   useEffect(() => {
-    const fetchIp = async () => {
-      try {
-        const res = await apiGet('/local-ip');
-        if (res?.success && res?.ip && window.location.hostname === 'localhost') {
-           const port = window.location.port ? `:${window.location.port}` : '';
-           setBaseUrl(`http://${res.ip}${port}`);
-        }
-      } catch (e) {}
+    const loadBaseUrl = async () => {
+      const resolved = await resolveAppBaseUrl();
+      setBaseUrl(resolved || window.location.origin);
     };
-    fetchIp();
+
+    loadBaseUrl();
 
     fetchBoard();
 
@@ -203,7 +201,7 @@ export default function BoardDetail() {
         const formData = new FormData();
         formData.append('file', file);
         const token = sessionStorage.getItem('token');
-        const uploadRes = await fetch(import.meta.env.VITE_API_URL ? `${import.meta.env.VITE_API_URL}/upload` : '/api/upload', {
+        const uploadRes = await fetch('/api/upload', {
           method: 'POST',
           headers: { Authorization: `Bearer ${token}` },
           body: formData
@@ -343,7 +341,7 @@ export default function BoardDetail() {
 
       if (isGuest) {
         const token = sessionStorage.getItem('token');
-        const uploadRes = await fetch(import.meta.env.VITE_API_URL ? `${import.meta.env.VITE_API_URL}/board/public/posts/${postId}` : `/api/board/public/posts/${postId}`, {
+        const uploadRes = await fetch(`/api/board/public/posts/${postId}`, {
           method: 'DELETE',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ nickname: guest_nickname })
